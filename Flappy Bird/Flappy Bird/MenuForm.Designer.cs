@@ -28,36 +28,36 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.btnPlay = new Button();
-            this.btnAbout = new Button();
+            btnPlay = new Button();
+            btnAbout = new Button();
             btnExit = new Button();
             SuspendLayout();
             // 
             // btnPlay
             // 
-            this.btnPlay.BackColor = Color.FromArgb(128, 255, 128);
-            this.btnPlay.FlatStyle = FlatStyle.Flat;
-            this.btnPlay.Font = new Font("Arial Narrow", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 204);
-            this.btnPlay.Location = new Point(97, 147);
-            this.btnPlay.Name = "btnPlay";
-            this.btnPlay.Size = new Size(175, 56);
-            this.btnPlay.TabIndex = 0;
-            this.btnPlay.Text = "Играть";
-            this.btnPlay.UseVisualStyleBackColor = false;
-            this.btnPlay.Click += this.btnPlay_Click;
+            btnPlay.BackColor = Color.FromArgb(128, 255, 128);
+            btnPlay.FlatStyle = FlatStyle.Flat;
+            btnPlay.Font = new Font("Arial Narrow", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 204);
+            btnPlay.Location = new Point(97, 147);
+            btnPlay.Name = "btnPlay";
+            btnPlay.Size = new Size(175, 56);
+            btnPlay.TabIndex = 0;
+            btnPlay.Text = "Играть";
+            btnPlay.UseVisualStyleBackColor = false;
+            btnPlay.Click += btnPlay_Click;
             // 
             // btnAbout
             // 
-            this.btnAbout.BackColor = Color.FromArgb(128, 255, 128);
-            this.btnAbout.FlatStyle = FlatStyle.Flat;
-            this.btnAbout.Font = new Font("Arial Narrow", 13.8F, FontStyle.Bold);
-            this.btnAbout.Location = new Point(97, 227);
-            this.btnAbout.Name = "btnAbout";
-            this.btnAbout.Size = new Size(175, 56);
-            this.btnAbout.TabIndex = 1;
-            this.btnAbout.Text = "О игре";
-            this.btnAbout.UseVisualStyleBackColor = false;
-            this.btnAbout.Click += this.btnAbout_Click;
+            btnAbout.BackColor = Color.FromArgb(128, 255, 128);
+            btnAbout.FlatStyle = FlatStyle.Flat;
+            btnAbout.Font = new Font("Arial Narrow", 13.8F, FontStyle.Bold);
+            btnAbout.Location = new Point(97, 227);
+            btnAbout.Name = "btnAbout";
+            btnAbout.Size = new Size(175, 56);
+            btnAbout.TabIndex = 1;
+            btnAbout.Text = "О игре";
+            btnAbout.UseVisualStyleBackColor = false;
+            btnAbout.Click += btnAbout_Click;
             // 
             // btnExit
             // 
@@ -80,10 +80,11 @@
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(382, 553);
             Controls.Add(btnExit);
-            Controls.Add(this.btnAbout);
-            Controls.Add(this.btnPlay);
+            Controls.Add(btnAbout);
+            Controls.Add(btnPlay);
             DoubleBuffered = true;
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
             Name = "MenuForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Flappy Bird: Меню";
