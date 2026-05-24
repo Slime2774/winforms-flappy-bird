@@ -186,6 +186,11 @@ namespace Flappy_Bird
                     Image botImg = Properties.Resources.pipe_bottom;
 
                     g.DrawImage(topImg, p.X, p.TopHeight - topImg.Height, 60, topImg.Height);
+
+                    int botPipeStart = p.TopHeight + p.Gap;
+
+                    int botPipeHeight = this.ClientSize.Height - botPipeStart;
+
                     g.DrawImage(botImg, p.X, p.TopHeight + p.Gap, 60, botImg.Height);
                 }
                 catch
