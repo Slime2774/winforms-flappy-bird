@@ -11,7 +11,11 @@ namespace Flappy_Bird
         private float birdY = 250;
         private float birdVelocity = 0;
         private float gravity = 0.6f;
-        private const int BirdSize = 30;
+
+        // Визуальный размер птицы на экране (сделали крупнее!)
+        private const int BirdVisualSize = 55;
+        // Реальный размер хитбокса (чуть меньше визуального, чтобы прощать игроку мелкие задевания)
+        private const int BirdHitboxSize = 40;
 
         // --- Игровая логика ---
         private int score = 0;
@@ -33,16 +37,14 @@ namespace Flappy_Bird
         {
             InitializeComponent();
 
-            // Загрузка рекорда
             if (System.IO.File.Exists(highScoreFile))
             {
                 string savedScore = System.IO.File.ReadAllText(highScoreFile);
                 int.TryParse(savedScore, out highScore);
             }
 
-            // Настройка окна
             this.Text = "Flappy Bird: Курсовая работа";
-            this.ClientSize = new Size(400, 600); // Оптимальный размер для Flappy
+            this.ClientSize = new Size(400, 600);
             this.DoubleBuffered = true;
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -116,9 +118,12 @@ namespace Flappy_Bird
 
         private void CheckCollisions()
         {
-            if (birdY <= 0 || birdY + BirdSize >= this.ClientSize.Height) GameOver();
+            // Проверка столкновения с полом и потолком с учетом нового размера
+            if (birdY <= 0 || birdY + BirdHitboxSize >= this.ClientSize.Height) GameOver();
 
-            Rectangle birdRect = new Rectangle(50, (int)birdY, BirdSize, BirdSize);
+            // Точный хитбокс птицы, отцентрированный относительно рисунка
+            Rectangle birdRect = new Rectangle(50 + (BirdVisualSize - BirdHitboxSize) / 2, (int)birdY + (BirdVisualSize - BirdHitboxSize) / 2, BirdHitboxSize, BirdHitboxSize);
+
             foreach (var p in pipes)
             {
                 Rectangle topPipe = new Rectangle(p.X, 0, 60, p.TopHeight);
@@ -136,7 +141,6 @@ namespace Flappy_Bird
             gameTimer.Stop();
             isGameOver = true;
 
-            // Логика рекорда перенесена сюда (правильное место)
             if (score > highScore)
             {
                 highScore = score;
@@ -156,28 +160,106 @@ namespace Flappy_Bird
         protected override void OnPaint(PaintEventArgs e)
         {
             Graphics g = e.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-            Color skyColor = (currentLevel % 2 == 0) ? Color.LightSteelBlue : Color.SkyBlue;
-            g.Clear(skyColor);
+            // Масштабируем пиксели БЕЗ размытия (сохраняем Pixel Art четким)
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
 
-            foreach (var p in pipes)
+            // 1. Небо
+            try
             {
-                Brush pipeBrush = currentLevel >= 4 ? Brushes.Firebrick : Brushes.ForestGreen;
-                g.FillRectangle(pipeBrush, p.X, 0, 60, p.TopHeight);
-                g.FillRectangle(pipeBrush, p.X, p.TopHeight + p.Gap, 60, this.Height);
-                g.DrawRectangle(Pens.Black, p.X, 0, 60, p.TopHeight);
-                g.DrawRectangle(Pens.Black, p.X, p.TopHeight + p.Gap, 60, this.Height);
+                Image bgImg = Properties.Resources.background;
+                g.DrawImage(bgImg, 0, 0, 400, 600);
+            }
+            catch
+            {
+                Color skyColor = (currentLevel % 2 == 0) ? Color.LightSteelBlue : Color.SkyBlue;
+                g.Clear(skyColor);
             }
 
-            g.FillEllipse(Brushes.Yellow, 50, birdY, BirdSize, BirdSize);
-            g.DrawEllipse(Pens.Black, 50, birdY, BirdSize, BirdSize);
-
-            using (Font uiFont = new Font("Arial", 12, FontStyle.Bold))
+            // 2. Трубы
+            foreach (var p in pipes)
             {
-                g.DrawString($"Очки: {score}", uiFont, Brushes.Black, 10, 10);
-                g.DrawString($"Уровень: {currentLevel}", uiFont, Brushes.DarkBlue, 10, 30);
-                g.DrawString($"Рекорд: {highScore}", uiFont, Brushes.DarkRed, 10, 50);
+                try
+                {
+                    Image topImg = Properties.Resources.pipe_top;
+                    Image botImg = Properties.Resources.pipe_bottom;
+
+                    g.DrawImage(topImg, p.X, p.TopHeight - topImg.Height, 60, topImg.Height);
+                    g.DrawImage(botImg, p.X, p.TopHeight + p.Gap, 60, botImg.Height);
+                }
+                catch
+                {
+                    Brush pipeBrush = currentLevel >= 4 ? Brushes.Firebrick : Brushes.ForestGreen;
+                    g.FillRectangle(pipeBrush, p.X, 0, 60, p.TopHeight);
+                    g.FillRectangle(pipeBrush, p.X, p.TopHeight + p.Gap, 60, this.Height);
+                }
+            }
+
+            // 3. Твоя птичка (Увеличенная и плавная)
+            try
+            {
+                Image birdImg = Properties.Resources.bird;
+
+                System.Drawing.Drawing2D.GraphicsState state = g.Save();
+
+                // Центрируем поворот ровно по новому большому размеру
+                g.TranslateTransform(50 + BirdVisualSize / 2, birdY + BirdVisualSize / 2);
+
+                float angle = birdVelocity * 5;
+                if (angle < -30) angle = -30;
+                if (angle > 70) angle = 70;
+
+                g.RotateTransform(angle);
+
+                // Рисуем твой спрайт, растягивая его до 55х55 пикселей
+                g.DrawImage(birdImg, -BirdVisualSize / 2, -BirdVisualSize / 2, BirdVisualSize, BirdVisualSize);
+
+                g.Restore(state);
+            }
+            catch
+            {
+                g.FillEllipse(Brushes.Yellow, 50, birdY, BirdHitboxSize, BirdHitboxSize);
+                g.DrawEllipse(Pens.Black, 50, birdY, BirdHitboxSize, BirdHitboxSize);
+            }
+
+            // 4. Интерфейс
+            using (Font uiFont = new Font("Arial", 24, FontStyle.Bold))
+            {
+                // Строки для вывода
+                string scoreStr = $"Очки: {score}";
+                string levelStr = $"Уровень: {currentLevel}";
+                string recordStr = $"Рекорд: {highScore}";
+
+                // Настройки для сглаживания текста, чтобы обводка была плавной
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+                // Рисуем "Очки"
+                using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
+                {
+                    path.AddString(scoreStr, uiFont.FontFamily, (int)uiFont.Style, uiFont.Size, new Point(10, 10), StringFormat.GenericDefault);
+                    g.DrawPath(new Pen(Color.White, 4) { LineJoin = System.Drawing.Drawing2D.LineJoin.Round }, path); // Белая обводка
+                    g.FillPath(Brushes.Black, path); // Черный текст внутри
+                }
+
+                // Рисуем "Уровень"
+                using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
+                {
+                    path.AddString(levelStr, uiFont.FontFamily, (int)uiFont.Style, uiFont.Size, new Point(10, 35), StringFormat.GenericDefault);
+                    g.DrawPath(new Pen(Color.White, 4) { LineJoin = System.Drawing.Drawing2D.LineJoin.Round }, path); // Белая обводка
+                    g.FillPath(Brushes.DarkBlue, path); // Синий текст внутри
+                }
+
+                // Рисуем "Рекорд"
+                using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
+                {
+                    path.AddString(recordStr, uiFont.FontFamily, (int)uiFont.Style, uiFont.Size, new Point(10, 60), StringFormat.GenericDefault);
+                    g.DrawPath(new Pen(Color.White, 4) { LineJoin = System.Drawing.Drawing2D.LineJoin.Round }, path); // Белая обводка
+                    g.FillPath(Brushes.DarkRed, path); // Темно-красный текст внутри
+                }
+
+                // Возвращаем режим без сглаживания для остального пиксель-арта
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
             }
 
             if (isGameOver)
