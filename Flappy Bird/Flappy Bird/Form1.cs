@@ -33,6 +33,12 @@ namespace Flappy_Bird
         // --- Таймер ---
         private System.Windows.Forms.Timer gameTimer = new System.Windows.Forms.Timer();
 
+        // --- Отрисовка текстур ---
+        private Image topPipe = Properties.Resources.pipe_top;
+        private Image bottomPipe = Properties.Resources.pipe_bottom;
+        private Image birdImg = Properties.Resources.bird;
+        private Image BackGround = Properties.Resources.background;
+
         public Form1()
         {
             InitializeComponent();
@@ -168,8 +174,7 @@ namespace Flappy_Bird
             // 1. Небо
             try
             {
-                Image bgImg = Properties.Resources.background;
-                g.DrawImage(bgImg, 0, 0, 400, 600);
+                g.DrawImage(BackGround, 0, 0, 400, 600);
             }
             catch
             {
@@ -182,16 +187,13 @@ namespace Flappy_Bird
             {
                 try
                 {
-                    Image topImg = Properties.Resources.pipe_top;
-                    Image botImg = Properties.Resources.pipe_bottom;
 
-                    g.DrawImage(topImg, p.X, p.TopHeight - topImg.Height, 60, topImg.Height);
+                    int topPipeY = p.TopHeight - 400;
+                    g.DrawImage(topPipe, p.X, topPipeY, 60, 400);
 
+                    // ФИКС НИЖНЕЙ ТРУБЫ (оставляем рабочим):
                     int botPipeStart = p.TopHeight + p.Gap;
-
-                    int botPipeHeight = this.ClientSize.Height - botPipeStart;
-
-                    g.DrawImage(botImg, p.X, p.TopHeight + p.Gap, 60, botImg.Height);
+                    g.DrawImage(bottomPipe, p.X, botPipeStart, 60, 400);
                 }
                 catch
                 {
@@ -204,8 +206,6 @@ namespace Flappy_Bird
             // 3. Твоя птичка (Увеличенная и плавная)
             try
             {
-                Image birdImg = Properties.Resources.bird;
-
                 System.Drawing.Drawing2D.GraphicsState state = g.Save();
 
                 // Центрируем поворот ровно по новому большому размеру
@@ -231,39 +231,36 @@ namespace Flappy_Bird
             // 4. Интерфейс
             using (Font uiFont = new Font("Arial", 24, FontStyle.Bold))
             {
-                // Строки для вывода
                 string scoreStr = $"Очки: {score}";
                 string levelStr = $"Уровень: {currentLevel}";
                 string recordStr = $"Рекорд: {highScore}";
 
-                // Настройки для сглаживания текста, чтобы обводка была плавной
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
                 // Рисуем "Очки"
                 using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
                 {
                     path.AddString(scoreStr, uiFont.FontFamily, (int)uiFont.Style, uiFont.Size, new Point(10, 10), StringFormat.GenericDefault);
-                    g.DrawPath(new Pen(Color.White, 4) { LineJoin = System.Drawing.Drawing2D.LineJoin.Round }, path); // Белая обводка
-                    g.FillPath(Brushes.Black, path); // Черный текст внутри
+                    g.DrawPath(new Pen(Color.White, 4) { LineJoin = System.Drawing.Drawing2D.LineJoin.Round }, path);
+                    g.FillPath(Brushes.Black, path);
                 }
 
                 // Рисуем "Уровень"
                 using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
                 {
                     path.AddString(levelStr, uiFont.FontFamily, (int)uiFont.Style, uiFont.Size, new Point(10, 35), StringFormat.GenericDefault);
-                    g.DrawPath(new Pen(Color.White, 4) { LineJoin = System.Drawing.Drawing2D.LineJoin.Round }, path); // Белая обводка
-                    g.FillPath(Brushes.DarkBlue, path); // Синий текст внутри
+                    g.DrawPath(new Pen(Color.White, 4) { LineJoin = System.Drawing.Drawing2D.LineJoin.Round }, path);
+                    g.FillPath(Brushes.DarkBlue, path);
                 }
 
                 // Рисуем "Рекорд"
                 using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
                 {
                     path.AddString(recordStr, uiFont.FontFamily, (int)uiFont.Style, uiFont.Size, new Point(10, 60), StringFormat.GenericDefault);
-                    g.DrawPath(new Pen(Color.White, 4) { LineJoin = System.Drawing.Drawing2D.LineJoin.Round }, path); // Белая обводка
-                    g.FillPath(Brushes.DarkRed, path); // Темно-красный текст внутри
+                    g.DrawPath(new Pen(Color.White, 4) { LineJoin = System.Drawing.Drawing2D.LineJoin.Round }, path);
+                    g.FillPath(Brushes.DarkRed, path);
                 }
 
-                // Возвращаем режим без сглаживания для остального пиксель-арта
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
             }
 
