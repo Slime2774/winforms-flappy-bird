@@ -30,8 +30,8 @@ namespace Flappy_Bird
             MessageBox.Show(
                 "Flappy Bird: Special Edition\n\n" +
                 "Разработчики:\n" +
-                "- Slime (Графика и код)\n" +
-                "- DASH (Идея и вдохновение)\n\n" +
+                "- Slime\n" +
+                "- DASH \n\n" +
                 "Управление:\n" +
                 "Пробел — Прыжок и Рестарт.\n\n" +
                 "Удачи в достижении новых рекордов!", 
