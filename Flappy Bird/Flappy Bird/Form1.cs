@@ -25,6 +25,9 @@ namespace Flappy_Bird
         private int highScore = 0;
         private string highScoreFile = "highscore.txt";
 
+        // --- Режим разработчика (Debug) ---
+        private bool showDebugMenu = false;
+
         // --- Уровни сложности ---
         private int currentLevel = 1;
         private int pipeSpeed = 4;
@@ -125,7 +128,7 @@ namespace Flappy_Bird
         private void CheckCollisions()
         {
             // Проверка столкновения с полом и потолком с учетом нового размера
-            if (birdY <= 0 || birdY + BirdHitboxSize >= this.ClientSize.Height) GameOver();
+            if (birdY <= 0 || birdY + BirdHitboxSize >= this.ClientSize.Height ) GameOver();
 
             // Точный хитбокс птицы, отцентрированный относительно рисунка
             Rectangle birdRect = new Rectangle(50 + (BirdVisualSize - BirdHitboxSize) / 2, (int)birdY + (BirdVisualSize - BirdHitboxSize) / 2, BirdHitboxSize, BirdHitboxSize);
@@ -160,6 +163,12 @@ namespace Flappy_Bird
             {
                 if (isGameOver) ResetGame();
                 else birdVelocity = -9;
+            }
+
+            if (e.KeyCode == Keys.D && !isGameOver)
+            {
+                showDebugMenu = !showDebugMenu;
+                this.Invalidate();
             }
         }
 
@@ -263,6 +272,48 @@ namespace Flappy_Bird
 
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
             }
+
+            // 5. Режим разработчика
+            if (showDebugMenu)
+            {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+
+                // Создаем хитбокс птицы точно так же, как в CheckCollisions
+                Rectangle birdRect = new Rectangle(50 + (BirdVisualSize - BirdHitboxSize) / 2, (int)birdY + (BirdVisualSize - BirdHitboxSize) / 2, BirdHitboxSize, BirdHitboxSize);
+
+                // Рисуем хитбокс птицы красным цветом
+                using (Pen debugPen = new Pen(Color.Red, 2))
+                {
+                    g.DrawRectangle(debugPen, birdRect);
+
+                    // Рисуем хитбоксы труб
+                    foreach (var p in pipes)
+                    {
+                        Rectangle topPipeRect = new Rectangle(p.X, 0, 60, p.TopHeight);
+                        int botPipeStart = p.TopHeight + p.Gap;
+                        int botPipeHeight = this.ClientSize.Height - botPipeStart;
+                        Rectangle botPipeRect = new Rectangle(p.X, botPipeStart, 60, botPipeHeight);
+
+                        g.DrawRectangle(debugPen, topPipeRect);
+                        g.DrawRectangle(debugPen, botPipeRect);
+                    }
+                }
+
+                // Выводим технические параметры в правом верхнем углу
+                using (Font debugFont = new Font("Courier New", 9, FontStyle.Bold))
+                {
+                    string debugInfo = $"--- DEBUG MODE ---\n" +
+                                       $"Bird Y:  {birdY:F1}\n" +
+                                       $"Velocity: {birdVelocity:F2}\n" +
+                                       $"Gap Size: {currentGap}px\n" +
+                                       $"Pipe Spd: {pipeSpeed}";
+
+                    // Рисуем полупрозрачную подложку под текст, чтобы его было видно
+                    g.FillRectangle(new SolidBrush(Color.FromArgb(170, Color.Black)), 220, 10, 170, 100);
+                    g.DrawString(debugInfo, debugFont, Brushes.Lime, 225, 15);
+                }
+            }
+
 
             if (isGameOver)
             {
