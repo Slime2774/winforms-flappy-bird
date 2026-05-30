@@ -1,0 +1,21 @@
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\bin\Debug\net8.0-windows\Flappy Bird.exe
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\bin\Debug\net8.0-windows\Flappy Bird.deps.json
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\bin\Debug\net8.0-windows\Flappy Bird.runtimeconfig.json
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\bin\Debug\net8.0-windows\Flappy Bird.dll
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\bin\Debug\net8.0-windows\Flappy Bird.pdb
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\obj\Debug\net8.0-windows\Flappy_Bird.Form1.resources
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\obj\Debug\net8.0-windows\Flappy_Bird.MenuForm.resources
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\obj\Debug\net8.0-windows\Flappy_Bird.Properties.Resources.resources
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\obj\Debug\net8.0-windows\Flappy Bird.csproj.GenerateResource.cache
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\obj\Debug\net8.0-windows\Flappy Bird.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\obj\Debug\net8.0-windows\Flappy Bird.AssemblyInfoInputs.cache
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\obj\Debug\net8.0-windows\Flappy Bird.AssemblyInfo.cs
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\obj\Debug\net8.0-windows\Flappy Bird.csproj.CoreCompileInputs.cache
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\obj\Debug\net8.0-windows\Flappy Bird.dll
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\obj\Debug\net8.0-windows\refint\Flappy Bird.dll
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\obj\Debug\net8.0-windows\Flappy Bird.pdb
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\obj\Debug\net8.0-windows\Flappy Bird.genruntimeconfig.cache
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\obj\Debug\net8.0-windows\ref\Flappy Bird.dll
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\bin\Debug\net8.0-windows\Sounds\die.wav
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\bin\Debug\net8.0-windows\Sounds\jump.wav
+C:\Users\PC\Desktop\winforms-flappy-bird-main\Flappy Bird\Flappy Bird\bin\Debug\net8.0-windows\Sounds\score.wav
