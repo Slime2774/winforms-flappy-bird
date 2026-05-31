@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Media;
 
 namespace Flappy_Bird
 {
@@ -15,7 +16,7 @@ namespace Flappy_Bird
         // Визуальный размер птицы на экране (сделали крупнее!)
         private const int BirdVisualSize = 55;
         // Реальный размер хитбокса (чуть меньше визуального, чтобы прощать игроку мелкие задевания)
-        private const int BirdHitboxSize = 40;
+        private const int BirdHitboxSize = 30;
 
         // --- Игровая логика ---
         private int score = 0;
@@ -24,6 +25,11 @@ namespace Flappy_Bird
         private List<Pipe> pipes = new List<Pipe>();
         private int highScore = 0;
         private string highScoreFile = "highscore.txt";
+
+        // ДОБАВЛЕНО: переменные для звуков
+        private SoundPlayer jumpSound;
+        private SoundPlayer scoreSound;
+        private SoundPlayer dieSound;
 
         // --- Режим разработчика (Debug) ---
         private bool showDebugMenu = false;
@@ -52,6 +58,9 @@ namespace Flappy_Bird
                 int.TryParse(savedScore, out highScore);
             }
 
+            // ДОБАВЛЕНО: загрузка звуков
+            LoadSounds();
+
             this.Text = "Flappy Bird: Курсовая работа";
             this.ClientSize = new Size(400, 600);
             this.DoubleBuffered = true;
@@ -64,6 +73,67 @@ namespace Flappy_Bird
             gameTimer.Tick += UpdateGame;
 
             ResetGame();
+        }
+
+        // ОБНОВЛЕНО: Динамический метод загрузки звуков (ищет папку Sounds рядом с .exe)
+        private void LoadSounds()
+        {
+            try
+            {
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+
+                string jumpPath = System.IO.Path.Combine(baseDir, "Sounds", "jump.wav");
+                string scorePath = System.IO.Path.Combine(baseDir, "Sounds", "score.wav");
+                string diePath = System.IO.Path.Combine(baseDir, "Sounds", "die.wav");
+
+                jumpSound = new SoundPlayer(jumpPath);
+                scoreSound = new SoundPlayer(scorePath);
+                dieSound = new SoundPlayer(diePath);
+
+                // Загружаем файлы в память заранее
+                jumpSound.Load();
+                scoreSound.Load();
+                dieSound.Load();
+            }
+            catch (Exception ex)
+            {
+                // Показывает окно с ошибкой и точным путем, если папка Sounds лежит не там
+                MessageBox.Show($"Ошибка загрузки звуков! Убедитесь, что папка 'Sounds' скопирована в bin/Debug.\n\nДетали: {ex.Message}",
+                                "Проверка аудиоресурсов", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        // ДОБАВЛЕНО: метод воспроизведения звука прыжка
+        private void PlayJumpSound()
+        {
+            try
+            {
+                if (jumpSound != null)
+                    jumpSound.Play();
+            }
+            catch { }
+        }
+
+        // ДОБАВЛЕНО: метод воспроизведения звука прохождения трубы
+        private void PlayScoreSound()
+        {
+            try
+            {
+                if (scoreSound != null)
+                    scoreSound.Play();
+            }
+            catch { }
+        }
+
+        // ДОБАВЛЕНО: метод воспроизведения звука смерти
+        private void PlayDieSound()
+        {
+            try
+            {
+                if (dieSound != null)
+                    dieSound.Play();
+            }
+            catch { }
         }
 
         private void ResetGame()
@@ -105,6 +175,8 @@ namespace Flappy_Bird
                 {
                     score++;
                     pipes[i].Passed = true;
+                    // ДОБАВЛЕНО: звук при прохождении трубы
+                    PlayScoreSound();
                     SpawnPipe(this.ClientSize.Width + 50);
                 }
 
@@ -127,10 +199,8 @@ namespace Flappy_Bird
 
         private void CheckCollisions()
         {
-            // Проверка столкновения с полом и потолком с учетом нового размера
-            if (birdY <= 0 || birdY + BirdHitboxSize >= this.ClientSize.Height ) GameOver();
+            if (birdY <= 0 || birdY + BirdHitboxSize >= this.ClientSize.Height) GameOver();
 
-            // Точный хитбокс птицы, отцентрированный относительно рисунка
             Rectangle birdRect = new Rectangle(50 + (BirdVisualSize - BirdHitboxSize) / 2, (int)birdY + (BirdVisualSize - BirdHitboxSize) / 2, BirdHitboxSize, BirdHitboxSize);
 
             foreach (var p in pipes)
@@ -147,6 +217,12 @@ namespace Flappy_Bird
 
         private void GameOver()
         {
+            // ДОБАВЛЕНО: звук смерти (проверка чтобы не играл несколько раз)
+            if (!isGameOver)
+            {
+                PlayDieSound();
+            }
+
             gameTimer.Stop();
             isGameOver = true;
 
@@ -162,7 +238,12 @@ namespace Flappy_Bird
             if (e.KeyCode == Keys.Space)
             {
                 if (isGameOver) ResetGame();
-                else birdVelocity = -9;
+                else
+                {
+                    birdVelocity = -9;
+                    // ДОБАВЛЕНО: звук прыжка
+                    PlayJumpSound();
+                }
             }
 
             if (e.KeyCode == Keys.D && !isGameOver)
@@ -176,7 +257,6 @@ namespace Flappy_Bird
         {
             Graphics g = e.Graphics;
 
-            // Масштабируем пиксели БЕЗ размытия (сохраняем Pixel Art четким)
             g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
 
@@ -196,11 +276,9 @@ namespace Flappy_Bird
             {
                 try
                 {
-
                     int topPipeY = p.TopHeight - 400;
                     g.DrawImage(topPipe, p.X, topPipeY, 60, 400);
 
-                    // ФИКС НИЖНЕЙ ТРУБЫ (оставляем рабочим):
                     int botPipeStart = p.TopHeight + p.Gap;
                     g.DrawImage(bottomPipe, p.X, botPipeStart, 60, 400);
                 }
@@ -217,7 +295,6 @@ namespace Flappy_Bird
             {
                 System.Drawing.Drawing2D.GraphicsState state = g.Save();
 
-                // Центрируем поворот ровно по новому большому размеру
                 g.TranslateTransform(50 + BirdVisualSize / 2, birdY + BirdVisualSize / 2);
 
                 float angle = birdVelocity * 5;
@@ -225,8 +302,6 @@ namespace Flappy_Bird
                 if (angle > 70) angle = 70;
 
                 g.RotateTransform(angle);
-
-                // Рисуем твой спрайт, растягивая его до 55х55 пикселей
                 g.DrawImage(birdImg, -BirdVisualSize / 2, -BirdVisualSize / 2, BirdVisualSize, BirdVisualSize);
 
                 g.Restore(state);
@@ -246,7 +321,6 @@ namespace Flappy_Bird
 
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-                // Рисуем "Очки"
                 using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
                 {
                     path.AddString(scoreStr, uiFont.FontFamily, (int)uiFont.Style, uiFont.Size, new Point(10, 10), StringFormat.GenericDefault);
@@ -254,7 +328,6 @@ namespace Flappy_Bird
                     g.FillPath(Brushes.Black, path);
                 }
 
-                // Рисуем "Уровень"
                 using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
                 {
                     path.AddString(levelStr, uiFont.FontFamily, (int)uiFont.Style, uiFont.Size, new Point(10, 35), StringFormat.GenericDefault);
@@ -262,7 +335,6 @@ namespace Flappy_Bird
                     g.FillPath(Brushes.DarkBlue, path);
                 }
 
-                // Рисуем "Рекорд"
                 using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
                 {
                     path.AddString(recordStr, uiFont.FontFamily, (int)uiFont.Style, uiFont.Size, new Point(10, 60), StringFormat.GenericDefault);
@@ -277,16 +349,12 @@ namespace Flappy_Bird
             if (showDebugMenu)
             {
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-
-                // Создаем хитбокс птицы точно так же, как в CheckCollisions
                 Rectangle birdRect = new Rectangle(50 + (BirdVisualSize - BirdHitboxSize) / 2, (int)birdY + (BirdVisualSize - BirdHitboxSize) / 2, BirdHitboxSize, BirdHitboxSize);
 
-                // Рисуем хитбокс птицы красным цветом
                 using (Pen debugPen = new Pen(Color.Red, 2))
                 {
                     g.DrawRectangle(debugPen, birdRect);
 
-                    // Рисуем хитбоксы труб
                     foreach (var p in pipes)
                     {
                         Rectangle topPipeRect = new Rectangle(p.X, 0, 60, p.TopHeight);
@@ -299,7 +367,6 @@ namespace Flappy_Bird
                     }
                 }
 
-                // Выводим технические параметры в правом верхнем углу
                 using (Font debugFont = new Font("Courier New", 9, FontStyle.Bold))
                 {
                     string debugInfo = $"--- DEBUG MODE ---\n" +
@@ -308,12 +375,10 @@ namespace Flappy_Bird
                                        $"Gap Size: {currentGap}px\n" +
                                        $"Pipe Spd: {pipeSpeed}";
 
-                    // Рисуем полупрозрачную подложку под текст, чтобы его было видно
                     g.FillRectangle(new SolidBrush(Color.FromArgb(170, Color.Black)), 220, 10, 170, 100);
                     g.DrawString(debugInfo, debugFont, Brushes.Lime, 225, 15);
                 }
             }
-
 
             if (isGameOver)
             {
