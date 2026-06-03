@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -8,17 +8,15 @@ namespace Flappy_Bird
 {
     public partial class Form1 : Form
     {
-        // --- Физика и состояние птицы ---
+        // --- Р¤РёР·РёРєР° Рё СЃРѕСЃС‚РѕСЏРЅРёРµ РїС‚РёС†С‹ ---
         private float birdY = 250;
         private float birdVelocity = 0;
         private float gravity = 0.6f;
 
-        // Визуальный размер птицы на экране (сделали крупнее!)
         private const int BirdVisualSize = 55;
-        // Реальный размер хитбокса (чуть меньше визуального, чтобы прощать игроку мелкие задевания)
         private const int BirdHitboxSize = 30;
 
-        // --- Игровая логика ---
+        // --- РРіСЂРѕРІР°СЏ Р»РѕРіРёРєР° ---
         private int score = 0;
         private bool isGameOver = false;
         private Random rnd = new Random();
@@ -26,31 +24,37 @@ namespace Flappy_Bird
         private int highScore = 0;
         private string highScoreFile = "highscore.txt";
 
-        // ДОБАВЛЕНО: переменные для звуков
+        // РџРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ Р·РІСѓРєРѕРІ
         private SoundPlayer jumpSound;
         private SoundPlayer scoreSound;
         private SoundPlayer dieSound;
 
-        // --- Режим разработчика (Debug) ---
+        // РЎРІРѕР№СЃС‚РІРѕ РґР»СЏ С‡С‚РµРЅРёСЏ СЃРѕСЃС‚РѕСЏРЅРёСЏ Р·РІСѓРєР° РёР· С„РѕСЂРјС‹ РјРµРЅСЋ
+        public bool IsSoundMuted { get; private set; }
+
+        // --- Р РµР¶РёРј СЂР°Р·СЂР°Р±РѕС‚С‡РёРєР° (Debug) ---
         private bool showDebugMenu = false;
 
-        // --- Уровни сложности ---
+        // --- РЈСЂРѕРІРЅРё СЃР»РѕР¶РЅРѕСЃС‚Рё ---
         private int currentLevel = 1;
         private int pipeSpeed = 4;
         private int currentGap = 160;
 
-        // --- Таймер ---
+        // --- РўР°Р№РјРµСЂ ---
         private System.Windows.Forms.Timer gameTimer = new System.Windows.Forms.Timer();
 
-        // --- Отрисовка текстур ---
+        // --- РћС‚СЂРёСЃРѕРІРєР° С‚РµРєСЃС‚СѓСЂ ---
         private Image topPipe = Properties.Resources.pipe_top;
         private Image bottomPipe = Properties.Resources.pipe_bottom;
         private Image birdImg = Properties.Resources.bird;
         private Image BackGround = Properties.Resources.background;
 
-        public Form1()
+        // РњРћР”РР¤РР¦РР РћР’РђРќРћ: РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ С‚РµРїРµСЂСЊ РїСЂРёРЅРёРјР°РµС‚ СЃС‚Р°СЂС‚РѕРІРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ Р·РІСѓРєР°
+        public Form1(bool startMuted)
         {
             InitializeComponent();
+
+            this.IsSoundMuted = startMuted;
 
             if (System.IO.File.Exists(highScoreFile))
             {
@@ -58,10 +62,9 @@ namespace Flappy_Bird
                 int.TryParse(savedScore, out highScore);
             }
 
-            // ДОБАВЛЕНО: загрузка звуков
             LoadSounds();
 
-            this.Text = "Flappy Bird: Курсовая работа";
+            this.Text = "Flappy Bird: РљСѓСЂСЃРѕРІР°СЏ СЂР°Р±РѕС‚Р°";
             this.ClientSize = new Size(400, 600);
             this.DoubleBuffered = true;
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -75,7 +78,6 @@ namespace Flappy_Bird
             ResetGame();
         }
 
-        // ОБНОВЛЕНО: Динамический метод загрузки звуков (ищет папку Sounds рядом с .exe)
         private void LoadSounds()
         {
             try
@@ -90,47 +92,42 @@ namespace Flappy_Bird
                 scoreSound = new SoundPlayer(scorePath);
                 dieSound = new SoundPlayer(diePath);
 
-                // Загружаем файлы в память заранее
                 jumpSound.Load();
                 scoreSound.Load();
                 dieSound.Load();
             }
             catch (Exception ex)
             {
-                // Показывает окно с ошибкой и точным путем, если папка Sounds лежит не там
-                MessageBox.Show($"Ошибка загрузки звуков! Убедитесь, что папка 'Sounds' скопирована в bin/Debug.\n\nДетали: {ex.Message}",
-                                "Проверка аудиоресурсов", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show($"РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё Р·РІСѓРєРѕРІ! РЈР±РµРґРёС‚РµСЃСЊ, С‡С‚Рѕ РїР°РїРєР° 'Sounds' СЃРєРѕРїРёСЂРѕРІР°РЅР° РІ bin/Debug.\n\nР”РµС‚Р°Р»Рё: {ex.Message}",
+                                "РџСЂРѕРІРµСЂРєР° Р°СѓРґРёРѕСЂРµСЃСѓСЂСЃРѕРІ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
-        // ДОБАВЛЕНО: метод воспроизведения звука прыжка
         private void PlayJumpSound()
         {
             try
             {
-                if (jumpSound != null)
+                if (jumpSound != null && !IsSoundMuted)
                     jumpSound.Play();
             }
             catch { }
         }
 
-        // ДОБАВЛЕНО: метод воспроизведения звука прохождения трубы
         private void PlayScoreSound()
         {
             try
             {
-                if (scoreSound != null)
+                if (scoreSound != null && !IsSoundMuted)
                     scoreSound.Play();
             }
             catch { }
         }
 
-        // ДОБАВЛЕНО: метод воспроизведения звука смерти
         private void PlayDieSound()
         {
             try
             {
-                if (dieSound != null)
+                if (dieSound != null && !IsSoundMuted)
                     dieSound.Play();
             }
             catch { }
@@ -149,6 +146,7 @@ namespace Flappy_Bird
             pipes.Clear();
             SpawnPipe(400);
 
+            this.Focus();
             gameTimer.Start();
         }
 
@@ -175,7 +173,6 @@ namespace Flappy_Bird
                 {
                     score++;
                     pipes[i].Passed = true;
-                    // ДОБАВЛЕНО: звук при прохождении трубы
                     PlayScoreSound();
                     SpawnPipe(this.ClientSize.Width + 50);
                 }
@@ -205,10 +202,10 @@ namespace Flappy_Bird
 
             foreach (var p in pipes)
             {
-                Rectangle topPipe = new Rectangle(p.X, 0, 60, p.TopHeight);
-                Rectangle bottomPipe = new Rectangle(p.X, p.TopHeight + p.Gap, 60, this.Height);
+                Rectangle topPipeRect = new Rectangle(p.X, 0, 60, p.TopHeight);
+                Rectangle bottomPipeRect = new Rectangle(p.X, p.TopHeight + p.Gap, 60, this.Height);
 
-                if (birdRect.IntersectsWith(topPipe) || birdRect.IntersectsWith(bottomPipe))
+                if (birdRect.IntersectsWith(topPipeRect) || birdRect.IntersectsWith(bottomPipeRect))
                 {
                     GameOver();
                 }
@@ -217,7 +214,6 @@ namespace Flappy_Bird
 
         private void GameOver()
         {
-            // ДОБАВЛЕНО: звук смерти (проверка чтобы не играл несколько раз)
             if (!isGameOver)
             {
                 PlayDieSound();
@@ -241,7 +237,6 @@ namespace Flappy_Bird
                 else
                 {
                     birdVelocity = -9;
-                    // ДОБАВЛЕНО: звук прыжка
                     PlayJumpSound();
                 }
             }
@@ -260,18 +255,15 @@ namespace Flappy_Bird
             g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
 
-            // 1. Небо
-            try
-            {
-                g.DrawImage(BackGround, 0, 0, 400, 600);
-            }
+            // 1. РќРµР±Рѕ
+            try { g.DrawImage(BackGround, 0, 0, 400, 600); }
             catch
             {
                 Color skyColor = (currentLevel % 2 == 0) ? Color.LightSteelBlue : Color.SkyBlue;
                 g.Clear(skyColor);
             }
 
-            // 2. Трубы
+            // 2. РўСЂСѓР±С‹
             foreach (var p in pipes)
             {
                 try
@@ -290,11 +282,10 @@ namespace Flappy_Bird
                 }
             }
 
-            // 3. Твоя птичка (Увеличенная и плавная)
+            // 3. РџС‚РёС‡РєР°
             try
             {
                 System.Drawing.Drawing2D.GraphicsState state = g.Save();
-
                 g.TranslateTransform(50 + BirdVisualSize / 2, birdY + BirdVisualSize / 2);
 
                 float angle = birdVelocity * 5;
@@ -303,7 +294,6 @@ namespace Flappy_Bird
 
                 g.RotateTransform(angle);
                 g.DrawImage(birdImg, -BirdVisualSize / 2, -BirdVisualSize / 2, BirdVisualSize, BirdVisualSize);
-
                 g.Restore(state);
             }
             catch
@@ -312,12 +302,12 @@ namespace Flappy_Bird
                 g.DrawEllipse(Pens.Black, 50, birdY, BirdHitboxSize, BirdHitboxSize);
             }
 
-            // 4. Интерфейс
+            // 4. РРЅС‚РµСЂС„РµР№СЃ
             using (Font uiFont = new Font("Arial", 24, FontStyle.Bold))
             {
-                string scoreStr = $"Очки: {score}";
-                string levelStr = $"Уровень: {currentLevel}";
-                string recordStr = $"Рекорд: {highScore}";
+                string scoreStr = $"РћС‡РєРё: {score}";
+                string levelStr = $"РЈСЂРѕРІРµРЅСЊ: {currentLevel}";
+                string recordStr = $"Р РµРєРѕСЂРґ: {highScore}";
 
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
@@ -341,11 +331,10 @@ namespace Flappy_Bird
                     g.DrawPath(new Pen(Color.White, 4) { LineJoin = System.Drawing.Drawing2D.LineJoin.Round }, path);
                     g.FillPath(Brushes.DarkRed, path);
                 }
-
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
             }
+            
 
-            // 5. Режим разработчика
+            // 5. Р РµР¶РёРј СЂР°Р·СЂР°Р±РѕС‚С‡РёРєР°
             if (showDebugMenu)
             {
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
@@ -354,13 +343,11 @@ namespace Flappy_Bird
                 using (Pen debugPen = new Pen(Color.Red, 2))
                 {
                     g.DrawRectangle(debugPen, birdRect);
-
                     foreach (var p in pipes)
                     {
                         Rectangle topPipeRect = new Rectangle(p.X, 0, 60, p.TopHeight);
                         int botPipeStart = p.TopHeight + p.Gap;
-                        int botPipeHeight = this.ClientSize.Height - botPipeStart;
-                        Rectangle botPipeRect = new Rectangle(p.X, botPipeStart, 60, botPipeHeight);
+                        Rectangle botPipeRect = new Rectangle(p.X, botPipeStart, 60, this.ClientSize.Height - botPipeStart);
 
                         g.DrawRectangle(debugPen, topPipeRect);
                         g.DrawRectangle(debugPen, botPipeRect);
@@ -375,8 +362,8 @@ namespace Flappy_Bird
                                        $"Gap Size: {currentGap}px\n" +
                                        $"Pipe Spd: {pipeSpeed}";
 
-                    g.FillRectangle(new SolidBrush(Color.FromArgb(170, Color.Black)), 220, 10, 170, 100);
-                    g.DrawString(debugInfo, debugFont, Brushes.Lime, 225, 15);
+                    g.FillRectangle(new SolidBrush(Color.FromArgb(170, Color.Black)), 220, 15, 170, 100);
+                    g.DrawString(debugInfo, debugFont, Brushes.Lime, 225, 20);
                 }
             }
 
@@ -385,9 +372,9 @@ namespace Flappy_Bird
                 g.FillRectangle(new SolidBrush(Color.FromArgb(180, Color.Black)), 0, 0, this.Width, this.Height);
                 using (Font overFont = new Font("Arial", 24, FontStyle.Bold))
                 {
-                    g.DrawString("ИГРА ОКОНЧЕНА", overFont, Brushes.White, 50, 200);
-                    g.DrawString($"Ваш счет: {score}", new Font("Arial", 16), Brushes.Gold, 120, 250);
-                    g.DrawString("Пробел - Рестарт", new Font("Arial", 14), Brushes.White, 110, 300);
+                    g.DrawString("РР“Р Рђ РћРљРћРќР§Р•РќРђ", overFont, Brushes.White, 50, 200);
+                    g.DrawString($"Р’Р°С€ СЃС‡РµС‚: {score}", new Font("Arial", 16), Brushes.Gold, 120, 250);
+                    g.DrawString("РџСЂРѕР±РµР» - Р РµСЃС‚Р°СЂС‚", new Font("Arial", 14), Brushes.White, 110, 300);
                 }
             }
         }

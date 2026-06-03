@@ -31,6 +31,7 @@
             btnPlay = new Button();
             btnAbout = new Button();
             btnExit = new Button();
+            btnMute = new Button();
             SuspendLayout();
             // 
             // btnPlay
@@ -38,7 +39,7 @@
             btnPlay.BackColor = Color.FromArgb(128, 255, 128);
             btnPlay.FlatStyle = FlatStyle.Flat;
             btnPlay.Font = new Font("Arial Narrow", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 204);
-            btnPlay.Location = new Point(97, 147);
+            btnPlay.Location = new Point(97, 87);
             btnPlay.Name = "btnPlay";
             btnPlay.Size = new Size(175, 56);
             btnPlay.TabIndex = 0;
@@ -51,7 +52,7 @@
             btnAbout.BackColor = Color.FromArgb(128, 255, 128);
             btnAbout.FlatStyle = FlatStyle.Flat;
             btnAbout.Font = new Font("Arial Narrow", 13.8F, FontStyle.Bold);
-            btnAbout.Location = new Point(97, 227);
+            btnAbout.Location = new Point(97, 160);
             btnAbout.Name = "btnAbout";
             btnAbout.Size = new Size(175, 56);
             btnAbout.TabIndex = 1;
@@ -72,6 +73,19 @@
             btnExit.UseVisualStyleBackColor = false;
             btnExit.Click += btnExit_Click;
             // 
+            // btnMute
+            // 
+            btnMute.BackColor = Color.FromArgb(128, 255, 128);
+            btnMute.FlatStyle = FlatStyle.Flat;
+            btnMute.Font = new Font("Arial Narrow", 13.8F, FontStyle.Bold);
+            btnMute.Location = new Point(97, 232);
+            btnMute.Name = "btnMute";
+            btnMute.Size = new Size(175, 56);
+            btnMute.TabIndex = 3;
+            btnMute.Text = "Звук: 🔊";
+            btnMute.UseVisualStyleBackColor = false;
+            btnMute.Click += btnMute_Click;
+            // 
             // MenuForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -79,6 +93,7 @@
             BackgroundImage = Properties.Resources.background;
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(382, 553);
+            Controls.Add(btnMute);
             Controls.Add(btnExit);
             Controls.Add(btnAbout);
             Controls.Add(btnPlay);
@@ -96,5 +111,6 @@
         private Button btnPlay;
         private Button btnAbout;
         private Button btnExit;
+        private Button btnMute;
     }
 }
